@@ -1,7 +1,4 @@
 // @ts-nocheck
-
-
-
 db.test.insertMany([
   {
     name: "Test Document",
