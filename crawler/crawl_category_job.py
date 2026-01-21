@@ -6,6 +6,9 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
 import json
+from minio import Minio
+from io import BytesIO
+import json
 
 options = Options()
 options.add_argument("--headless=new")
@@ -49,5 +52,50 @@ try:
 finally:
     driver.quit()
 
-with open("job_category.json", "w", encoding="utf-8") as f:
-    json.dump(all_items, f, ensure_ascii=False, indent=4)
+# =========================
+# MinIO config
+# =========================
+MINIO_ENDPOINT = "host.docker.internal:9000"
+MINIO_ACCESS_KEY = "minio"
+MINIO_SECRET_KEY = "minio@123"
+BUCKET_NAME = "raw-data"
+
+# =========================
+# Init MinIO client
+# =========================
+minio_client = Minio(
+    MINIO_ENDPOINT,
+    access_key=MINIO_ACCESS_KEY,
+    secret_key=MINIO_SECRET_KEY,
+    secure=False
+)
+
+# =========================
+# Create bucket if needed
+# =========================
+if not minio_client.bucket_exists(BUCKET_NAME):
+    minio_client.make_bucket(BUCKET_NAME)
+
+# =========================
+# Convert dict -> bytes
+# =========================
+json_bytes = json.dumps(
+    all_items,
+    ensure_ascii=False,
+    indent=4
+).encode("utf-8")
+
+# =========================
+# Upload directly to MinIO
+# =========================
+object_name = "topcv/job_category.json"
+
+minio_client.put_object(
+    bucket_name=BUCKET_NAME,
+    object_name=object_name,
+    data=BytesIO(json_bytes),
+    length=len(json_bytes),
+    content_type="application/json"
+)
+#unit test 
+print(f"Uploaded directly to s3://{BUCKET_NAME}/{object_name}")
