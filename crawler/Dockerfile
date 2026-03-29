@@ -2,7 +2,6 @@ FROM python:3.10-slim
 
 USER root
 
-# 1. Cài Chromium + thư viện cần thiết
 RUN apt-get update && apt-get install -y \
     chromium \
     chromium-driver \
@@ -16,10 +15,12 @@ RUN apt-get update && apt-get install -y \
     libgbm1 \
  && rm -rf /var/lib/apt/lists/*
 
-# 2. Cài Selenium
 RUN pip install --no-cache-dir selenium
 
-# 3. Set working dir
+RUN pip install minio
+
+RUN pip install webdriver-manager
+
 WORKDIR /app
 
 CMD ["python"]

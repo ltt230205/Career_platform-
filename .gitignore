@@ -1,0 +1,14 @@
+.idea
+infra/jars
+infra/minio-storage
+infra/pg-metastore-data
+infra/oracledb-data
+orchestration/logs
+mongodb_data 
+*.json
+*.pyc
+*.log
+*.csv
+*.exe
+*.zip
+*.tar.gz
